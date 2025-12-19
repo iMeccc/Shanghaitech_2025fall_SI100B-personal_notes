@@ -1,0 +1,9 @@
+# SI100B requirements
+# Usage: pip install -r requirements.txt
+
+matplotlib>=3.3
+numpy>=1.23.5
+opencv-python>=4.1.1
+torch>=1.8.0
+torchvision>=0.9.0
+tqdm>=4.66.3
