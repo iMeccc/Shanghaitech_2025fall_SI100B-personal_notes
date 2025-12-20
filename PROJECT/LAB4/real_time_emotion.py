@@ -51,7 +51,7 @@ model = emotionNet()
 
 # 加载训练好的权重
 try:
-    model.load_state_dict(torch.load('face_expression.pth', map_location=torch.device('cpu')))
+    model.load_state_dict(torch.load(r'C:\CODE\ShanghaiTech\2025fall_SI100B\PROJECT\LAB4\model_lec\face_expression.pth', map_location=torch.device('cpu')))
 except FileNotFoundError:
     print("错误：找不到模型文件 'face_expression.pth'。请确保它和脚本在同一个目录下。")
     exit()

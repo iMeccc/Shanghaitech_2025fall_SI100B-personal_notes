@@ -32,7 +32,7 @@ class emotionNet(nn.Module):
         self.pool3 = nn.MaxPool2d(kernel_size=2)
         self.relu3 = nn.LeakyReLU()
 
-        self.fc1 = nn.Linear(in_features=4096, out_features=3) 
+        self.fc1 = nn.Linear(in_features=4096, out_features=7) 
         self.relu4 = nn.LeakyReLU()
 
 
