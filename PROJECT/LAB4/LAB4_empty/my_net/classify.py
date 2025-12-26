@@ -21,19 +21,23 @@ class emotionNet(nn.Module):
         # step1:
         # Define the functions you need: convolution, pooling, activation, and fully connected functions.
         self.conv1 = nn.Conv2d(in_channels=3, out_channels=64, kernel_size=3, stride=1, padding=1)
+        self.bn1 = nn.BatchNorm2d(64)
         self.pool1 = nn.MaxPool2d(kernel_size=2)
         self.relu1 = nn.LeakyReLU()
 
         self.conv2 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1, padding=0) # 根据图示
+        self.bn2 = nn.BatchNorm2d(128)
         self.pool2 = nn.MaxPool2d(kernel_size=2)
         self.relu2 = nn.LeakyReLU()
 
         self.conv3 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=4, stride=1, padding=0) # 根据图示
+        self.bn3 = nn.BatchNorm2d(256)
         self.pool3 = nn.MaxPool2d(kernel_size=2)
         self.relu3 = nn.LeakyReLU()
 
-        self.fc1 = nn.Linear(in_features=4096, out_features=7) 
+        self.fc1 = nn.Linear(in_features=4096, out_features=3) 
         self.relu4 = nn.LeakyReLU()
+        self.dropout = nn.Dropout(p=0.5)    
 
 
     def forward(self, x):
@@ -42,16 +46,19 @@ class emotionNet(nn.Module):
         # First block
         # convolution -> maxpool -> relu
         x = self.conv1(x)
+        x = self.bn1(x)
         x = self.relu1(x)
         x = self.pool1(x)
         # Second block
         # convolution -> maxpool -> relu
         x = self.conv2(x)
+        x = self.bn2(x)
         x = self.relu2(x)
         x = self.pool2(x)
         # Third block
         # convolution -> maxpool -> relu
         x = self.conv3(x)
+        x = self.bn3(x)
         x = self.relu3(x)
         x = self.pool3(x)
         # Flatten for linear layers
@@ -61,6 +68,7 @@ class emotionNet(nn.Module):
         # fully connect layer
         x = self.fc1(x)
         x = self.relu4(x)
+        x = self.dropout(x)
 
         return x
 
