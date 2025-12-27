@@ -1,18 +1,66 @@
 import cv2
 import torch
-import torch.nn as nn
-import numpy as np
-import os, sys
 from torchvision import transforms
+import torch.nn as nn
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
-project_dir = os.path.dirname(script_dir)
-if project_dir not in sys.path:
-    sys.path.insert(0, project_dir)
-# --- 1. 模型定义 ---
-from LAB4.LAB4_empty.my_net.classify import emotionNet
+class emotionNet(nn.Module):
+    def __init__(self, printtoggle):
+        super().__init__()
+        self.print = printtoggle
 
-# --- 2. 核心逻辑类 ---
+        # step1:
+        # Define the functions you need: convolution, pooling, activation, and fully connected functions.
+        self.conv1 = nn.Conv2d(in_channels=3, out_channels=64, kernel_size=3, stride=1, padding=1)
+        self.bn1 = nn.BatchNorm2d(64)
+        self.pool1 = nn.MaxPool2d(kernel_size=2)
+        self.relu1 = nn.LeakyReLU()
+
+        self.conv2 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1, padding=0) # 根据图示
+        self.bn2 = nn.BatchNorm2d(128)
+        self.pool2 = nn.MaxPool2d(kernel_size=2)
+        self.relu2 = nn.LeakyReLU()
+
+        self.conv3 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=4, stride=1, padding=0) # 根据图示
+        self.bn3 = nn.BatchNorm2d(256)
+        self.pool3 = nn.MaxPool2d(kernel_size=2)
+        self.relu3 = nn.LeakyReLU()
+
+        self.fc1 = nn.Linear(in_features=4096, out_features=3) 
+        self.relu4 = nn.LeakyReLU()
+        self.dropout = nn.Dropout(p=0.4)
+
+
+    def forward(self, x):
+        #Step 2
+        # Using the functions your defined for forward propagate
+        # First block
+        # convolution -> maxpool -> relu
+        x = self.conv1(x)
+        x = self.bn1(x)
+        x = self.relu1(x)
+        x = self.pool1(x)
+        # Second block
+        # convolution -> maxpool -> relu
+        x = self.conv2(x)
+        x = self.bn2(x)
+        x = self.relu2(x)
+        x = self.pool2(x)
+        # Third block
+        # convolution -> maxpool -> relu
+        x = self.conv3(x)
+        x = self.bn3(x)
+        x = self.relu3(x)
+        x = self.pool3(x)
+        # Flatten for linear layers
+        x = torch.flatten(x, start_dim=1)
+
+        # fully connect layer
+        x = self.fc1(x)
+        x = self.relu4(x)
+        x = self.dropout(x)
+        
+        return x
+
 class EmotionDetector:
     def __init__(self, cascade_path, model_path, device='cpu'):
         self.classes = ['happy', 'neutral', 'sad']
@@ -21,7 +69,7 @@ class EmotionDetector:
         self._setup_transform()
 
     def _load_models(self, cascade_path, model_path):
-        """私有方法，用于加载所有模型。"""
+        # load cascade model and emotion model
         print(f"Loading Haar Cascade from: {cascade_path}")
         self.face_cascade = cv2.CascadeClassifier(cascade_path)
         if self.face_cascade.empty():
@@ -35,7 +83,7 @@ class EmotionDetector:
         print("Models loaded successfully.")
 
     def _setup_transform(self):
-        """私有方法，用于设置图像预处理流程。"""
+        # set up image preprocessing pipeline
         self.transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.Resize((48, 48), antialias=True),
@@ -43,9 +91,7 @@ class EmotionDetector:
         ])
 
     def detect_and_predict(self, image):
-        """
-        处理单张图像，检测人脸并标注情绪。
-        """
+        # process a single image, detect faces and annotate emotions
         display_image = image.copy()
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         faces = self.face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(100, 100))
@@ -61,15 +107,18 @@ class EmotionDetector:
         return annotated_image, predictions
 
     def _extract_faces(self, image, faces):
+        # extract face ROIs and their coordinates
         face_rois = [image[y:y+h, x:x+w] for (x, y, w, h) in faces]
         face_coords = list(faces)
         return face_rois, face_coords
 
     def _preprocess_faces(self, face_rois):
+        # preprocess face ROIs into a batch tensor
         batch_tensors = [self.transform(cv2.cvtColor(roi, cv2.COLOR_BGR2RGB)) for roi in face_rois]
         return torch.stack(batch_tensors).to(self.device)
 
     def _predict_batch(self, input_batch):
+        # predict emotions for a batch of face ROIs
         with torch.no_grad():
             outputs = self.model(input_batch)
             probabilities = torch.softmax(outputs, dim=1)
@@ -84,63 +133,10 @@ class EmotionDetector:
         return predictions
 
     def _draw_annotations(self, image, coords, predictions):
+        # draw rectangles and labels on the image
         for i, (x, y, w, h) in enumerate(coords):
             pred = predictions[i]
             label_text = f"{pred['label']}: {pred['confidence']*100:.1f}%"
             cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
             cv2.putText(image, label_text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36, 255, 12), 2)
         return image
-
-
-# --- 4. 主程序入口 ---
-def main():
-    # --- 使用基于脚本位置的相对路径 ---
-    # 1. 获取当前脚本所在的目录
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-
-    # 2. 构建到各个文件的路径
-    # 假设所有文件都与此脚本在同一目录下
-    cascade_file = os.path.join(script_dir, "haarcascade_frontalface_default.xml")
-    model_file = os.path.join(script_dir, "face_expression_excel.pth") 
-    image_file = os.path.join(script_dir, "samples", "demo.png") 
-    output_file = os.path.join(script_dir, "result.jpg")
-
-    # ------------------------------------
-
-    # 初始化检测器
-    device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
-    print(f"Using device: {device}")
-    
-    try:
-        # 检查文件是否存在
-        for f in [cascade_file, model_file, image_file]:
-            if not os.path.exists(f):
-                raise FileNotFoundError(f"Required file not found: {f}")
-
-        detector = EmotionDetector(cascade_path=cascade_file, model_path=model_file, device=device)
-        
-        image = cv2.imread(image_file)
-        if image is None:
-            raise IOError(f"Could not read the image file: {image_file}")
-
-        result_image, predictions = detector.detect_and_predict(image)
-        
-        print(f"Processing complete. Found {len(predictions)} faces.")
-        for i, pred in enumerate(predictions):
-            print(f"  Face {i+1}: {pred['label']} ({pred['confidence']*100:.1f}%)")
-            
-        cv2.imwrite(output_file, result_image)
-        print(f"Result saved to {output_file}")
-
-        cv2.imshow('Emotion Detection Result', result_image)
-        print("Press any key to exit...")
-        cv2.waitKey(0)
-
-    except (IOError, FileNotFoundError, RuntimeError) as e:
-        print(f"An error occurred: {e}")
-    finally:
-        cv2.destroyAllWindows()
-
-
-if __name__ == '__main__':
-    main()

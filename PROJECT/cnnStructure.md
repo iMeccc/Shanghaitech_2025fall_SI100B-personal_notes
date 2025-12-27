@@ -1031,3 +1031,192 @@ confusion_matrix[1, 2] += 1
     *   **作用:** 创建一个 NumPy 数组的**深拷贝 (deep copy)**。
     *   **返回值:** 一个与原数组内容相同，但**完全独立**的新数组。
     *   **为什么重要？** OpenCV 的绘图函数（`rectangle`, `putText`）是**原地操作 (in-place)**，会直接修改传入的图像数组。如果你想保留原始、干净的图像，就必须先 `copy()` 一份副本，然后在副本上进行绘制。
+
+>---
+>
+>### **Python 路径处理“黄金法则”**
+>
+>**核心思想：** 永远不要信任“当前工作目录”。让你的脚本总能**基于自身的位置**来定位它需要的文件。
+>
+>---
+>
+>### **场景一：文件与你的脚本在同一个目录下 (最简单)**
+>
+>**目录结构：**
+>```
+>my_project/
+>├── my_script.py
+>└── data.csv
+>```
+>
+>**目标：** `my_script.py` 要读取 `data.csv`。
+>
+>#### **最佳实践 (使用 `pathlib`)**
+>
+>这是 Python 3.4+ 最推荐的、最现代化的方式。
+>
+>```python
+>from pathlib import Path
+>
+># 1. 获取当前脚本所在的目录作为一个 Path 对象
+># Path(__file__) -> 获取脚本的完整路径
+># .parent -> 获取该路径的父目录
+>base_dir = Path(__file__).parent.resolve()
+>
+># 2. 使用 / 操作符拼接路径，非常直观
+>data_path = base_dir / "data.csv"
+>
+># 3. Path 对象可以被大多数现代库直接使用，或用 str() 转换
+>with open(data_path, 'r') as f:
+>    content = f.read()
+>
+>print(f"成功读取文件: {data_path}")
+>```
+>*   **优点：** 代码极其优雅、可读性强，且跨平台（自动处理 `\` 和 `/`）。
+>
+>#### **传统方法 (使用 `os.path`)**
+>
+>这在所有 Python 版本中都有效，是经典的标准做法。
+>
+>```python
+>import os
+>
+># 1. 获取当前脚本所在的目录
+># os.path.abspath(__file__) -> 获取脚本的绝对路径
+># os.path.dirname(...) -> 获取路径的目录部分
+>script_dir = os.path.dirname(os.path.abspath(__file__))
+>
+># 2. 使用 os.path.join 拼接路径，保证跨平台兼容性
+>data_path = os.path.join(script_dir, "data.csv")
+>
+># 3. 使用拼接好的路径
+>with open(data_path, 'r') as f:
+>    content = f.read()
+>
+>print(f"成功读取文件: {data_path}")
+>```
+>*   **优点：** 极其健壮、通用，是必须掌握的方法。
+>
+>---
+>
+>### **场景二：文件在脚本的子目录中**
+>
+>**目录结构：**
+>```
+>my_project/
+>├── my_script.py
+>└── data/
+>    └── config.json
+>```
+>
+>**目标：** `my_script.py` 要读取 `data/config.json`。
+>
+>#### **最佳实践 (`pathlib`)**
+>
+>```python
+>from pathlib import Path
+>
+>base_dir = Path(__file__).parent.resolve()
+>
+># 直接用 / 拼接多层路径
+>config_path = base_dir / "data" / "config.json"
+>
+># ... 使用 config_path ...
+>```
+>
+>#### **传统方法 (`os.path`)**
+>
+>```python
+>import os
+>
+>script_dir = os.path.dirname(os.path.abspath(__file__))
+>
+># os.path.join 可以接收多个参数
+>config_path = os.path.join(script_dir, "data", "config.json")
+>
+># ... 使用 config_path ...
+>```
+>
+>---
+>
+>### **场景三：文件在脚本的父目录或兄弟目录中 (最常见的问题)**
+>
+>**目录结构：**
+>```
+>my_project/
+>├── data/
+>│   └── shared_model.pth
+>└── scripts/
+>    └── process_data.py
+>```
+>**目标：** `scripts/process_data.py` 要读取 `data/shared_model.pth`。
+>
+>#### **最佳实践 (`pathlib`)**
+>
+>```python
+>from pathlib import Path
+>
+># script_dir -> '.../my_project/scripts'
+>script_dir = Path(__file__).parent.resolve()
+>
+># project_root -> '.../my_project'
+># .parent 属性可以连续调用，向上回溯
+>project_root = script_dir.parent 
+>
+># 从项目根目录开始构建路径
+>model_path = project_root / "data" / "shared_model.pth"
+>
+># ... 使用 model_path ...
+>```
+>
+>#### **传统方法 (`os.path`)**
+>
+>```python
+>import os
+>
+># script_dir -> '.../my_project/scripts'
+>script_dir = os.path.dirname(os.path.abspath(__file__))
+>
+># project_root -> '.../my_project'
+># os.path.dirname() 可以连续调用
+>project_root = os.path.dirname(script_dir)
+>
+># 从项目根目录开始构建路径
+>model_path = os.path.join(project_root, "data", "shared_model.pth")
+>
+># ... 使用 model_path ...
+>```
+>
+>---
+>
+>### **“不要做”清单 (Anti-patterns)**
+>
+>❌ **不要直接使用相对路径字符串**
+>```python
+># 脆弱的代码
+>with open("data.csv", "r") as f: ...
+>with open("../data/shared_model.pth", "rb") as f: ...
+>```
+>*   **为什么？** 这种写法完全依赖于你**从哪个目录启动** Python 脚本，极易出错。
+>
+>❌ **不要手动用 `+` 和 `/` 或 `\` 拼接字符串**
+>```python
+># 不跨平台的代码
+>path = script_dir + "\\" + "data.csv" # 只在 Windows 上工作
+>```
+>*   **为什么？** 会导致你的代码在 Windows 和 Linux/macOS 之间无法移植。永远使用 `os.path.join()` 或 `pathlib` 的 `/`。
+>
+>❌ **不要使用 `os.chdir()` 来改变工作目录**
+>```python
+># 不推荐的代码
+>os.chdir(script_dir)
+>with open("data.csv", "r") as f: ...
+>```
+>*   **为什么？** 改变一个全局状态（当前工作目录）是一种“副作用”，可能会对你项目中其他依赖相对路径的模块产生意想不到的影响，让调试变得困难。
+>
+>**总结：**
+>无论文件在哪里，你的“寻路”策略都应该是**两步走**：
+>1.  **找到一个绝对可靠的“锚点”**：通常是你**脚本文件自身所在的目录 (`__file__`)**，或者项目的**根目录**。
+>2.  **从这个“锚点”出发，使用 `os.path.join()` 或 `pathlib`，构建到目标文件的完整、无歧义的路径。**
+>
+>养成这个习惯，你就可以彻底摆脱文件路径带来的烦恼。
