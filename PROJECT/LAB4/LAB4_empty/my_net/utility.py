@@ -88,8 +88,7 @@ def loadTest(path, batch_size=0):
 
     return test_loader, testset.classes
 
-def function2trainModel(model, device, train_loader, lossFun, optimizer):
-    epochs = 10
+def function2trainModel(model, device, train_loader, lossFun, optimizer, epochs):
     #model,lossfun,optimizer = makeFaceNet()
 
     model.to(device)
@@ -128,5 +127,70 @@ def function2trainModel(model, device, train_loader, lossFun, optimizer):
         trainLoss[epochi] = np.mean(batchLoss)
         trainAcc[epochi] = 100*np.mean(batchAcc)
     return trainLoss, trainAcc, model
+
+def plot_training_curves(losses, accuracy, save_path='./training_curves.png'):
+    """
+    绘制并保存 Loss 和 Accuracy 曲线
+    """
+    epochs = range(len(losses))
+    
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+    fig.suptitle('Training process')
+
+    # 绘制 Loss
+    ax1.plot(epochs, losses, label='loss')
+    ax1.set_title('loss')
+    ax1.set_xlabel('Epoch')
+    ax1.set_ylabel('Loss')
+    ax1.grid(True)
+    ax1.legend()
+
+    # 绘制 Accuracy
+    ax2.plot(epochs, accuracy, label='accuracy', color='red')
+    ax2.set_title('accuracy')
+    ax2.set_xlabel('Epoch')
+    ax2.set_ylabel('Accuracy (%)')
+    ax2.grid(True)
+    ax2.legend()
+
+    plt.tight_layout()
+    
+    if save_path:
+        plt.savefig(save_path)
+        print(f"Training curves saved to {save_path}")
+    
+    plt.show()
+
+def plot_confusion_matrix(cm, classes, title='Confusion Matrix', cmap="Blues", save_path='./confusion_matrix.png'):
+    """
+    绘制并保存混淆矩阵
+    """
+    plt.figure(figsize=(8, 6))
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    
+    # 设置坐标轴标签
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=0)
+    plt.yticks(tick_marks, classes)
+
+    # 在每个格子里填上数字
+    thresh = cm.max() / 2.
+    for i in range(cm.shape[0]):
+        for j in range(cm.shape[1]):
+            plt.text(j, i, format(cm[i, j], 'd'),
+                     horizontalalignment="center",
+                     color="white" if cm[i, j] > thresh else "black")
+
+    plt.ylabel('True Label')
+    plt.xlabel('Predicted Label')
+    plt.tight_layout()
+    
+    if save_path:
+        plt.savefig(save_path)
+        print(f"Confusion matrix saved to {save_path}")
+        
+    plt.show()
 
 #trainLoss,trainAcc,model = function2trainModel()

@@ -13,12 +13,12 @@ import torch
 from LAB4.LAB4_empty import my_net
 import numpy as np
 
-batch_size=6
+batch_size=48
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 print(device)
 
 model, lossfun, optimizer = my_net.classify.makeEmotionNet(False)
-model_path = os.path.join(project_dir, 'LAB4', 'model_bonus', 'face_expression_bs6.pth')
+model_path = os.path.join(project_dir, 'LAB6', 'face_expression_excel.pth')
 model.load_state_dict(torch.load(model_path, map_location=device))
 model.to(device)
 images_path = os.path.join(project_dir, 'LAB4', 'images')
@@ -35,7 +35,7 @@ with torch.no_grad():
     new_labels = torch.argmax(yHat, dim=1)
     y_true = y.cpu().numpy()
     y_pred = new_labels.cpu().numpy()
-    ##Show first 32 predicted labels
+    ##Show first 48 predicted labels
     my_net.utility.imshow_with_labels(X[:batch_size], new_labels[:batch_size], classes)
 
     #Step 2
@@ -98,6 +98,12 @@ with torch.no_grad():
 
         for i in range(len(y_true_batch)):
             confusion_matrix[y_true_batch[i], y_pred_batch[i]] += 1
+
+# Plot and save confusion matrix
+print("Confusion Matrix:")
+print(confusion_matrix)
+my_net.utility.plot_confusion_matrix(confusion_matrix, classes, save_path='./confusion_matrix.png')
+
 overall_accuracy = (total_correct / total_samples) * 100
 print(f"\nOverall Accuracy: {overall_accuracy:.2f}%")
 

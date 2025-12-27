@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 
-def conv2d(x, kernel, stride=1, padding=0) -> np.ndarray:
+def conv2d(x: np.ndarray, kernel: np.ndarray, stride=1, padding=0) -> np.ndarray:
     H, W = x.shape
     K = kernel.shape[0]
     

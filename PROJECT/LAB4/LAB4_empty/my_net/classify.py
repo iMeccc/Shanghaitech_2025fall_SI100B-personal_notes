@@ -37,7 +37,7 @@ class emotionNet(nn.Module):
 
         self.fc1 = nn.Linear(in_features=4096, out_features=3) 
         self.relu4 = nn.LeakyReLU()
-        self.dropout = nn.Dropout(p=0.5)    
+        self.dropout = nn.Dropout(p=0.4)
 
 
     def forward(self, x):
@@ -69,7 +69,7 @@ class emotionNet(nn.Module):
         x = self.fc1(x)
         x = self.relu4(x)
         x = self.dropout(x)
-
+        
         return x
 
 def makeEmotionNet(printtoggle=False):
@@ -78,6 +78,6 @@ def makeEmotionNet(printtoggle=False):
     #L_{CE} loss function
     lossfun = nn.CrossEntropyLoss()
     #optimizer
-    optimizer = torch.optim.Adam(model.parameters(), lr = .001, weight_decay=1e-5)
+    optimizer = torch.optim.Adam(model.parameters(), lr = .0005, weight_decay=1e-5)
 
     return model, lossfun, optimizer

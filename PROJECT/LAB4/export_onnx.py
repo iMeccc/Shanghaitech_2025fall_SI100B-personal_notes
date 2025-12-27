@@ -1,12 +1,19 @@
 import torch
 import torch.nn as nn
-
+import os, sys
 # --- 关键步骤 1: 导入你的模型定义 ---
 # Python 需要知道 emotionNet 这个类是什么样的。
 # 你可以把 emotionNet 类的定义复制到这个文件里，
 # 或者如果你的类在一个叫 model.py 的文件里，你可以这样导入：
-# from model import emotionNet
+# script_dir -> .../PROJECT/LAB6
+script_dir = os.path.dirname(os.path.abspath(__file__))
+# project_dir -> .../PROJECT （确保 PROJECT 下有 LAB4 文件夹）
+project_dir = os.path.dirname(script_dir)
 
+if project_dir not in sys.path:
+    sys.path.insert(0, project_dir)
+from LAB4.LAB4_empty.my_net.classify import emotionNet
+'''
 # 假设你直接把类定义复制过来了
 class emotionNet(nn.Module):
     def __init__(self, printtoggle):
@@ -60,7 +67,7 @@ class emotionNet(nn.Module):
         x = self.relu4(x)
 
         return x
-
+'''
 # --- 关键步骤 2: 创建模型实例并加载权重 ---
 print("正在创建模型实例...")
 # 实例化一个和你训练时一模一样的“空壳”
