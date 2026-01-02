@@ -62,7 +62,18 @@ class emotionNet(nn.Module):
         return x
 
 class EmotionDetector:
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super(EmotionDetector, cls).__new__(cls)
+        else:
+            print("Returning the existing EmotionDetector instance...")
+        return cls._instance
+    
     def __init__(self, cascade_path, model_path, device='cpu'):
+        if hasattr(self, 'model'):
+            return # Avoid re-initialization
         self.classes = ['happy', 'neutral', 'sad']
         self.device = torch.device(device)
         self._load_models(cascade_path, model_path)

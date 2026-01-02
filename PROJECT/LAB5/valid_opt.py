@@ -69,8 +69,8 @@ if __name__ == '__main__':
     # --- 加载模型和数据 ---
     try:
         # 模型加载
-        model_name = 'face_expression_excel.pth'
-        model_folder = 'LAB6'
+        model_name = 'face_expression_resnet.pth'
+        model_folder = 'LAB7'
         model, _, _ = classify.makeEmotionNet(False)
         model_path = os.path.join(project_dir, model_folder, model_name)
         model.load_state_dict(torch.load(model_path, map_location=device))
@@ -134,4 +134,5 @@ if __name__ == '__main__':
     calculate_and_print_metrics(confusion_matrix, classes, title="--- Final Metrics on Full Dataset ---")
 
     # 绘制并保存混淆矩阵热力图
-    utility.plot_confusion_matrix(confusion_matrix, classes, save_path='./confusion_matrix.png')
+    save_path='./confusion_matrix_resnet.png'
+    utility.plot_confusion_matrix(confusion_matrix, classes, save_path)

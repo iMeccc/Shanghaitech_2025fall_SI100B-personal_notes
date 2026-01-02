@@ -71,7 +71,7 @@ class emotionNet(nn.Module):
         x = self.dropout(x)
         
         return x
-
+'''
 def makeEmotionNet(printtoggle=False):
     model = emotionNet(False)
 
@@ -80,4 +80,16 @@ def makeEmotionNet(printtoggle=False):
     #optimizer
     optimizer = torch.optim.Adam(model.parameters(), lr = .0005, weight_decay=1e-5)
 
+    return model, lossfun, optimizer
+'''
+
+def makeEmotionNet(printtoggle=False):
+    #model = emotionNet()
+    model = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)
+    num_features = model.fc.in_features
+    model.fc = nn.Linear(num_features, 3)
+    #loss function
+    lossfun = nn.CrossEntropyLoss()
+    #optimizer
+    optimizer = torch.optim.Adam(model.parameters(), lr = .0005, weight_decay=1e-5)
     return model, lossfun, optimizer

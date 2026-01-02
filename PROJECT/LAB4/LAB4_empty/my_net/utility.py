@@ -11,17 +11,17 @@ import torch
 from torch.utils.data import DataLoader, Subset
 import torchvision.transforms as transforms
 from torchvision.datasets import ImageFolder
-#from classify import makeEmotionNet
+# from classify import makeEmotionNet
 import os
 
 transform = {
         "training":
     transforms.Compose(
     [
-#     transforms.RandomHorizontalFlip(),  # 随机水平翻转
-#     transforms.RandomRotation(10),  # 随机旋转 ±10度
-#     transforms.RandomCrop(44),  # 随机裁剪到44x44大小
-#     transforms.Resize((48, 48)),  # 调整回48x48大小
+     transforms.RandomHorizontalFlip(),  # 随机水平翻转
+     transforms.RandomRotation(10),  # 随机旋转 ±10度
+     transforms.RandomCrop(44),  # 随机裁剪到44x44大小
+     transforms.Resize((48, 48)),  # 调整回48x48大小
      transforms.ToTensor(),
      transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]),
         "evaluate":
@@ -128,7 +128,7 @@ def function2trainModel(model, device, train_loader, lossFun, optimizer, epochs)
         trainAcc[epochi] = 100*np.mean(batchAcc)
     return trainLoss, trainAcc, model
 
-def plot_training_curves(losses, accuracy, save_path='./training_curves.png'):
+def plot_training_curves(losses, accuracy, save_path):
     """
     绘制并保存 Loss 和 Accuracy 曲线
     """

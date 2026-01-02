@@ -19,7 +19,7 @@ train_loader, classes= my_net.utility.loadTrain("./images", batchsize)
 model,lossfun,optimizer = my_net.classify.makeEmotionNet(False)
 
 # Start training process
-epochs = 75
+epochs = 100
 losses, accuracy, _ = my_net.utility.function2trainModel(model, device, train_loader, lossfun, optimizer, epochs)
 
 print("--------------------------")
@@ -28,7 +28,8 @@ for i, (loss, acc) in enumerate(zip(losses, accuracy)):
     print(f"Iteration {i}, loss：{loss:.2f}, accuracy: {acc:.2f}")
 
 # Plot and save training curves
-my_net.utility.plot_training_curves(losses, accuracy, save_path='./training_curves.png')
+save_path='./training_curves_resnet.png'
+my_net.utility.plot_training_curves(losses, accuracy, save_path)
 
-PATH = './face_expression_excel.pth'
+PATH = './face_expression_resnet.pth'
 torch.save(model.state_dict(), PATH)
