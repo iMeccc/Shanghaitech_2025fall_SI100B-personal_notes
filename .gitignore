@@ -2,6 +2,9 @@ SCRIPTS/
 /PROJECT/LAB4/LAB4_empty/my_net/__pycache__/
 /PROJECT/LAB4/images/
 /PROJECT/LAB4/images_bonus/
+/PROJECT/Report/train
+/PROJECT/Report/test
+*.yml
 *.pth
 *.onnx
 *.onnx.data
