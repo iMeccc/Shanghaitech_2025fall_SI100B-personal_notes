@@ -16,7 +16,7 @@ if __name__ == '__main__':
     output_file = os.path.join(script_dir, "video_result.avi")
 
     # initialize detector
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = 'mps' if torch.cuda.is_available() else 'cpu'
     print(f"Using device: {device}")
     try:
         # check if files exist

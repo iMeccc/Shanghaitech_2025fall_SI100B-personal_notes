@@ -47,7 +47,7 @@ def full_connect(X, W, b) -> np.ndarray:
 
 if __name__ == '__main__':
   #Read test case
-  img = cv2.imread(r"PROJECT\Lab3\sad.jpg", cv2.IMREAD_GRAYSCALE) 
+  img = cv2.imread(r"/Users/meccc/Repository/Shanghaitech/2025fall_SI100B/PROJECT/LAB3/Lab_bonus3/sad.jpg", cv2.IMREAD_GRAYSCALE) 
   #Normailize to [-1, 1)
   assert img is not None, "Image not found"
   img = img / 127.0 - 1.0

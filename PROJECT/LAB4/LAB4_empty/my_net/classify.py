@@ -35,7 +35,7 @@ class emotionNet(nn.Module):
         self.pool3 = nn.MaxPool2d(kernel_size=2)
         self.relu3 = nn.LeakyReLU()
 
-        self.fc1 = nn.Linear(in_features=4096, out_features=3) 
+        self.fc1 = nn.Linear(in_features=4096, out_features=7) 
         self.relu4 = nn.LeakyReLU()
         self.dropout = nn.Dropout(p=0.4)
 
@@ -87,7 +87,7 @@ def makeEmotionNet(printtoggle=False):
     #model = emotionNet()
     model = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)
     num_features = model.fc.in_features
-    model.fc = nn.Linear(num_features, 3)
+    model.fc = nn.Linear(num_features, 7)
     #loss function
     lossfun = nn.CrossEntropyLoss()
     #optimizer

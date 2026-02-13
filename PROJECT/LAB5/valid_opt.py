@@ -63,14 +63,19 @@ def calculate_and_print_metrics(confusion_matrix, classes, title="--- Metrics --
 if __name__ == '__main__':
     # --- 配置 ---
     batch_size = 48
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    if torch.backends.mps.is_available():
+        device = torch.device("mps")
+    elif torch.cuda.is_available():
+        device = torch.device("cuda")
+    else:
+        device = torch.device("cpu")
     print(f"Using device: {device}")
 
     # --- 加载模型和数据 ---
     try:
         # 模型加载
-        model_name = 'face_expression_resnet.pth'
-        model_folder = 'LAB7'
+        model_name = 'face_expression_7class_lr05.pth'
+        model_folder = 'LAB4'
         model, _, _ = classify.makeEmotionNet(False)
         model_path = os.path.join(project_dir, model_folder, model_name)
         model.load_state_dict(torch.load(model_path, map_location=device))
@@ -78,7 +83,7 @@ if __name__ == '__main__':
         model.eval() # 一次性设置
 
         # 数据加载
-        image_name = 'images'
+        image_name = 'images_bonus'
         images_path = os.path.join(project_dir, 'LAB4', image_name)
         test_loader, classes = utility.loadTest(images_path, batch_size)
     except Exception as e:

@@ -1,5 +1,5 @@
 import cv2
-image = cv2.imread(r'C:\CODE\ShanghaiTech\2025fall_SI100B\PROJECT\LAB1\create.png')
+image = cv2.imread(r'/Users/meccc/Repository/Shanghaitech/2025fall_SI100B/PROJECT/LAB1/create.png')
 assert image is not None
 
 print(image.shape)

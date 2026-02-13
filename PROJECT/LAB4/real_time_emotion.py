@@ -51,7 +51,7 @@ model = emotionNet()
 
 # 加载训练好的权重
 try:
-    model.load_state_dict(torch.load(r'C:\CODE\ShanghaiTech\2025fall_SI100B\PROJECT\LAB4\model_lec\face_expression.pth', map_location=torch.device('cpu')))
+    model.load_state_dict(torch.load(r'/Users/meccc/Repository/Shanghaitech/2025fall_SI100B/PROJECT/LAB4/model_lec/face_expression.pth', map_location=torch.device('cpu')))
 except FileNotFoundError:
     print("错误：找不到模型文件 'face_expression.pth'。请确保它和脚本在同一个目录下。")
     exit()
@@ -61,7 +61,7 @@ model.eval()
 
 # 加载 OpenCV 的人脸检测器
 try:
-    face_cascade = cv2.CascadeClassifier(r'C:\CODE\ShanghaiTech\2025fall_SI100B\PROJECT\LAB2\haar-cascade-files\haarcascade_frontalface_default.xml')
+    face_cascade = cv2.CascadeClassifier(r'/Users/meccc/Repository/Shanghaitech/2025fall_SI100B/PROJECT/LAB2/haar-cascade-files/haarcascade_frontalface_default.xml')
 except cv2.error:
     print("错误：找不到人脸检测器文件 'haarcascade_frontalface_default.xml'。请下载并放在脚本目录下。")
     exit()
